@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Summary Report</title>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.15.35/css/bootstrap-datetimepicker.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.15.35/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://dhis2-cdn.org/v225-1/plugin/jquery-2.2.4.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"/>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+</head>
+<body>
+<Style>
+    .table1{
+
+    }
+    .table2{
+        margin:50px;
+    }
+    .table3 h1{
+        text-align: center;
+    }
+    </Style>
+<script>
+    var p_indicator=[],x_categories=[],ip_fever_male_data=[],ip_fever_female_data=[],ip_fever_total_data=[];
+    var series=[],flag="false",ip_fever_male_data1,ip_fever_female_data1,ip_fever_age12=[],ip_fever_agel=[],ip_fever_age1to5=[],ip_fever_ageg6to12=[];
+    var data1=["10","20","30","40","50"],ip_fever_dengue_cases=[],ip_fever_scrub_cases=[],opcases=[],ipcases=[],labconfirmedcases=[];
+    var target=0;
+    var today , last30days='',last7days="";
+    var taluk_count_07={
+        orgname:[],
+        orgcount:[]
+
+    };
+
+    var taluk_count_30={
+        orgname:[],
+        orgcount:[]
+
+    };
+    var taluk_chart_data=[];
+    var taluk_chart_data_name=[];
+    var ip_fever = {
+        ip_fever_male: [],
+        ip_fever_female: [],
+        ip_fever_total: []
+    };
+
+    var ip_fever_gender = {
+        ip_fever_age_g_12: [],
+        ip_fever_age_l_1: [],
+        ip_fever_age_6to12: [],
+        ip_fever_age_1to5: []
+    };
+
+    var ip_fever_disease = {
+        ip_fever_dengue: [],
+        ip_fever_scrub: []
+    };
+
+    var op_cases = {
+        op_fever_cases: []
+    };
+    var ip_cases = {
+        ip_fever_cases: []
+    };
+    var lab_confirmed = {
+        lab_confirmed_cases: []
+    };
+//
+//    $(document).ready(function(){
+//
+//    });
+$(document).ready(function() {
+    $("#legend").hide();
+});
+
+
+   function loadDataX() {
+
+  $("#legend").show();
+// <table style="width:100%;" class="table2">
+//     <tr>
+//         <td style="width:80% ">
+//             <div id="overContainer">
+//                 <div id="map1" style="width:1200px; height:500px"></div>
+//             </div>
+//         </td>
+//     </tr>
+// </table>
+// <table style="width: 100%">
+// <tr>
+//     <td style="width: 50%">
+//         <div id="summary" style=" height:500px"></div>
+//     </td>
+//     <td style="width: 50%">
+//         <div id="sumamry_chart" style=" height:500px"></div>
+//     </td>
+// </tr>
+// </table>
+
+// <!--<div style="width: 100%">-->
+//     <!--<div id="container_1" style="min-width: 310px; height: 400px;  width: 50%; margin-left: 50%"></div>-->
+// <!--</div>-->
+
+// <!--<table style="width:100%;">-->
+//     <!--<tr>-->
+
+//         <!--<td style="width:50%;"><h1 style="text-align: center"></h1>-->
+//             <!--<div id="chart3" style="width: 1200px;  height: 400px; margin: 0 auto; "></div>-->
+//         <!--</td>-->
+//     <!--</tr>-->
+// <!--</table>-->
+
+// <table style="width:100%;" class="table3">
+//     <tr>
+
+//         <td style="width:50%;"><H1></H1>
+//             <div id="container_op" style="width: 500px;  height: 400px; margin: 0 auto; "></div>
+//         </td>
+//         <td style="width:50%;"><H1></H1>
+// 
+
+
+$('#summary').empty();
+$('#sumamry_chart').empty();
+    //    document.getElementById("container2").innerHTML="";
+    //    document.getElementById("container_fever").innerHTML="";
+    //    document.getElementById("container1").innerHTML="";
+    //    document.getElementById("container_ip").innerHTML="";
+    //    document.getElementById("container").innerHTML="";
+    //    document.getElementById("container_op").innerHTML="";
+    //     document.getElementById("chart3").innerHTML="";
+    //      document.getElementById("container_1").innerHTML="";
+    //       document.getElementById("sumamry_chart").innerHTML="";
+    //       document.getElementById("summary").innerHTML="";
+    //        document.getElementById("map1").innerHTML="";
+          
+
+       var cloudmade1 = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+           maxZoom: 18,
+           attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+           key: 'BC9A493B41014CAABB9dsfsdfds8F0471D759707'
+       });
+
+       var map1 = L.map('map1')
+           .setView([13.23521,80.3332],9)
+           .addLayer(cloudmade1);
+       var style = function(){
+           return { color: "black",
+               opacity: 0.75,
+               fillColor: "red",
+               fillOpacity: 0.1,
+               dashArray: '5, 5',
+               weight: 3
+           }
+       };
+       var afi_3 =  'http://139.162.61.147/nieodk/api/documents/Nlxrbpt58yU/data';
+       var afi_5 =  'http://139.162.61.147/nieodk/api/documents/cFuhc2er9r0/data';
+       var lab_1 =  'http://139.162.61.147/nieodk/api/documents/SiSyc0GDhDq/data';
+
+//           afi_5 = new LeafIcon({iconUrl: 'leaf-red.png'}),
+//           lab_1 = new LeafIcon({iconUrl: 'leaf-orange.png'});
+
+
+       today = document.getElementById('datepicker1').value;
+       console.log(today);
+       var  year=today.substring(0,04);
+       var month=today.substring(5,7);
+       var piechartperod=year+''+month;
+       var date=today.substring(8,10);
+
+  
+
+ var period_=year+month+date;
+
+       var d = new Date(year,month-1,date);
+       var  previousdy = new Date(d.getTime() - 1*24*60*60*1000);
+       var  day_7_before = new Date(d.getTime() - 7*24*60*60*1000);
+  console.log(day_7_before);
+       var mon=previousdy.getMonth()+1;
+          var mon1=previousdy.getMonth()+1;
+       var datenew = previousdy.getDate();
+         var datenew1 = day_7_before.getDate();
+       if(mon<10)
+       {mon='0'+mon;
+    }
+    if(mon1<10)
+       {mon1='0'+mon1;
+    }
+       if(datenew<10){
+           datenew = "0"+datenew;
+       }
+       var previousdy1=previousdy.getFullYear()+''+mon+''+datenew;
+         var previousdy11=day_7_before.getFullYear()+'-'+mon1+'-'+datenew1;
+
+         console.log(previousdy11);
+
+       for (var x = 30; x >=1; x--) {
+           // var date2=x-date;
+
+           var  startDate = new Date(d.getTime() - x*24*60*60*1000);
+
+           var date3=startDate.getDate();
+           if(date3<10){
+               date3='0'+date3;}
+           var month1=startDate.getMonth()+1;
+           if(month1<10){
+               month1='0'+month1;
+           }
+           var year1=startDate.getFullYear();
+
+
+
+
+           var period=year1+''+month1+''+date3;
+
+
+           last30days= period+';'+last30days;
+
+       };
+
+       var len=last30days.length-1;
+       last30days=last30days.substring(0,len);
+       var blockwise=[];
+       var tar=0;
+       var hell="Last 30 Days Average ";
+
+       for (var x = 7; x >=1; x--) {
+           // var date2=x-date;
+
+           var  startDate = new Date(d.getTime() - x*24*60*60*1000);
+
+           var date3=startDate.getDate();
+           if(date3<10){
+               date3='0'+date3;}
+           var month1=startDate.getMonth()+1;
+           if(month1<10){
+               month1='0'+month1;
+           }
+           var year1=startDate.getFullYear();
+
+
+           var period=year1+''+month1+''+date3;
+
+
+           last7days= period+';'+last7days;
+
+       };
+
+       var len1=last7days.length-1;
+       last7days=last7days.substring(0,len1);
+
+
+
+
+       $.ajax({
+           async : false,
+           type: "GET",
+           dataType: "json",
+           contentType: "application/json",
+           url: 'http://139.162.61.147/nieodk/api/25/analytics.json?dimension=dx:ENwzP6PhYWr;CNHrghINblN&dimension=pe:'+last7days+'&filter=ou:WXW1rhM9hgR&displayProperty=NAME&outputIdScheme=CODE',
+           success: function(dhis_rows){
+               for(var i=0;i<dhis_rows.rows.length;i++)
+               {
+                   for(var i=0;i<dhis_rows.rows.length;i++)
+                   {
+                       if(dhis_rows.rows[i][0]=="ENwzP6PhYWr")
+                       {
+                           ip_fever.ip_fever_male.push({
+                               "name":"IP fever case (male)",
+                               "period" :dhis_rows.rows[i][1],
+                               "value"  : dhis_rows.rows[i][2]
+                           });
+
+                           ip_fever_male_data.push(Number(dhis_rows.rows[i][2]));
+                           x_categories.push(dhis_rows.rows[i][1]);
+                       }
+
+                       else if (dhis_rows.rows[i][0]=="CNHrghINblN")
+                       {
+                           ip_fever.ip_fever_female.push({
+                               "name":"IP fever case (female)",
+                               "period" :dhis_rows.rows[i][1],
+                               "value"  : dhis_rows.rows[i][2]
+                           });
+                           ip_fever_female_data.push(Number(dhis_rows.rows[i][2]));
+
+                       }
+                       else
+                       {
+                           ip_fever.ip_fever_total.push({
+                               "name":"IP fever case (total)",
+                               "period" :dhis_rows.rows[i][1],
+                               "value"  : dhis_rows.rows[i][2]
+                           });
+                           ip_fever_total_data.push(dhis_rows.rows[i][2]);
+                       }
+                   }
+
+               }
+
+               generatechart_ipfever_male_female(x_categories,ip_fever_male_data,ip_fever_female_data);
+           },
+           error: function(response){
+
+           }
+       });
+
+
+       $.ajax({
+           async : false,
+           type: "GET",
+           dataType: "json",
+           contentType: "application/json",
+           url: 'http://139.162.61.147/nieodk/api/25/analytics.json?dimension=dx:olWenYtwygr;KHomCpbJGL6;EQeWcka5g9c;QsJVWd8Mno7&dimension=pe:'+last7days+'&filter=ou:WXW1rhM9hgR&displayProperty=NAME',
+           success: function(dhis_rows){
+               x_categories=[];
+               for(var i=0;i<dhis_rows.rows.length;i++) {
+                   for (var i = 0; i < dhis_rows.rows.length; i++) {
+                       if(dhis_rows.rows[i][0]=="EQeWcka5g9c")
+                       {
+                           ip_fever_gender.ip_fever_age_g_12.push({
+                               "name":"IP fever case (age > 12 yrs)",
+                               "period" :dhis_rows.rows[i][1],
+                               "value"  : dhis_rows.rows[i][2]
+                           });
+
+                           ip_fever_age12.push(Number(dhis_rows.rows[i][2]));
+                           x_categories.push(dhis_rows.rows[i][1]);
+                       }
+
+                       else if (dhis_rows.rows[i][0]=="QsJVWd8Mno7")
+                       {
+                           ip_fever_gender.ip_fever_age_l_1.push({
+                               "name":"IP fever case (age < 1 year)",
+                               "period" :dhis_rows.rows[i][1],
+                               "value"  : dhis_rows.rows[i][2]
+                           });
+                           ip_fever_agel.push(Number(dhis_rows.rows[i][2]));
+
+                       }
+
+                       else if (dhis_rows.rows[i][0]=="KHomCpbJGL6")
+                       {
+                           ip_fever_gender.ip_fever_age_6to12.push({
+                               "name":"IP fever case (age 6-12 yrs)",
+                               "period" :dhis_rows.rows[i][1],
+                               "value"  : dhis_rows.rows[i][2]
+                           });
+                           ip_fever_ageg6to12.push(Number(dhis_rows.rows[i][2]));
+
+                       }
+                       else if (dhis_rows.rows[i][0]=="olWenYtwygr")
+                       {
+                           ip_fever_gender.ip_fever_age_1to5.push({
+                               "name":"IP fever case (age 1-5 yrs)",
+                               "period" :dhis_rows.rows[i][1],
+                               "value"  : dhis_rows.rows[i][2]
+                           });
+                           ip_fever_age1to5.push(Number(dhis_rows.rows[i][2]));
+
+                       }
+                       else
+                       {
+//                           ip_fever.ip_fever_total.push({
+//                               "name":"IP fever case (total)",
+//                               "period" :dhis_rows.rows[i][1],
+//                               "value"  : dhis_rows.rows[i][2]
+//                           });
+                           ip_fever_total_data.push(dhis_rows.rows[i][2]);
+                       }
+                   }
+               }
+
+               generatechart_ipfever_age(x_categories,ip_fever_age12,ip_fever_agel,ip_fever_age1to5,ip_fever_ageg6to12);
+           },
+           error: function(response){
+
+           }
+       });
+
+       $.ajax({
+           async : false,
+           type: "GET",
+           dataType: "json",
+           contentType: "application/json",
+           url: 'http://139.162.61.147/nieodk/api/25/analytics.json?dimension=dx:xynpVmT7dic;IbsC6eCWPdW&dimension=pe:'+last7days+'&filter=ou:WXW1rhM9hgR&displayProperty=NAME',
+           success: function(dhis_rows){
+               x_categories=[];
+               for(var i=0;i<dhis_rows.rows.length;i++)
+               {
+                   for(var i=0;i<dhis_rows.rows.length;i++)
+                   {
+                       if(dhis_rows.rows[i][0]=="xynpVmT7dic")
+                       {
+                           ip_fever_disease.ip_fever_denguepush({
+                               "name":"Dengue case",
+                               "period" :dhis_rows.rows[i][1],
+                               "value"  : dhis_rows.rows[i][2]
+                           });
+
+                           ip_fever_dengue_cases.push(Number(dhis_rows.rows[i][2]));
+                           x_categories.push(dhis_rows.rows[i][1]);
+                       }
+
+                       else if (dhis_rows.rows[i][0]=="IbsC6eCWPdW")
+                       {
+//                           ip_fever_disease.ip_fever_scrub.push({
+//                               "name":"Scrub typhus case",
+//                               "period" :dhis_rows.rows[i][1],
+//                               "value"  : dhis_rows.rows[i][2]
+//                           });
+                           ip_fever_scrub_cases.push(Number(dhis_rows.rows[i][2]));
+
+                       }
+                   }
+
+               }
+
+               generatechart_ipfever_disease(x_categories,ip_fever_dengue_cases,ip_fever_scrub_cases);
+           },
+           error: function(response){
+
+           }
+       });
+
+       $.ajax({
+           async : false,
+           type: "GET",
+           dataType: "json",
+           contentType: "application/json",
+           url: 'http://139.162.61.147/nieodk/api/25/analytics.json?dimension=dx:PpGueEPdrG4&dimension=pe:'+last7days+'&filter=ou:WXW1rhM9hgR&displayProperty=NAME',
+           success: function(dhis_rows){
+               x_categories=[];
+               for(var i=0;i<dhis_rows.rows.length;i++)
+               {
+                   for(var i=0;i<dhis_rows.rows.length;i++)
+                   {
+                       if(dhis_rows.rows[i][0]=="PpGueEPdrG4")
+                       {
+//                           op_cases.op_fever_cases({
+//                               "name":"Outpatient fever case",
+//                               "period" :dhis_rows.rows[i][1],
+//                               "value"  : dhis_rows.rows[i][2]
+//                           });
+
+                           opcases.push(Number(dhis_rows.rows[i][2]));
+                           x_categories.push(dhis_rows.rows[i][1]);
+                       }
+                   }
+
+               }
+
+               linechart_op(x_categories,opcases);
+           },
+           error: function(response){
+
+           }
+       });
+
+       $.ajax({
+           async : false,
+           type: "GET",
+           dataType: "json",
+           contentType: "application/json",
+           url: 'http://139.162.61.147/nieodk/api/25/analytics.json?dimension=dx:ync729Eu0uN&dimension=pe:'+last7days+'&filter=ou:WXW1rhM9hgR&displayProperty=NAME',
+           success: function(dhis_rows){
+               x_categories=[];
+               for(var i=0;i<dhis_rows.rows.length;i++)
+               {
+                   for(var i=0;i<dhis_rows.rows.length;i++)
+                   {
+                       if(dhis_rows.rows[i][0]=="ync729Eu0uN")
+                       {
+//                           ip_cases.ip_fever_cases({
+//                               "name":"Inpatient fever case",
+//                               "period" :dhis_rows.rows[i][1],
+//                               "value"  : dhis_rows.rows[i][2]
+//                           });
+
+                           ipcases.push(Number(dhis_rows.rows[i][2]));
+                           x_categories.push(dhis_rows.rows[i][1]);
+                       }
+                   }
+
+               }
+
+               linechart_ip(x_categories,ipcases);
+           },
+           error: function(response){
+
+           }
+       });
+
+       $.ajax({
+           async : false,
+           type: "GET",
+           dataType: "json",
+           contentType: "application/json",
+           url: 'http://139.162.61.147/nieodk/api/25/analytics.json?dimension=dx:sUvnnR1Vwlg&dimension=pe:'+last7days+'&filter=ou:WXW1rhM9hgR&displayProperty=NAME',
+           success: function(dhis_rows){
+               x_categories=[];
+               for(var i=0;i<dhis_rows.rows.length;i++)
+               {
+                   for(var i=0;i<dhis_rows.rows.length;i++)
+                   {
+                       if(dhis_rows.rows[i][0]=="sUvnnR1Vwlg")
+                       {
+
+                           labconfirmedcases.push(Number(dhis_rows.rows[i][2]));
+                           x_categories.push(dhis_rows.rows[i][1]);
+                       }
+                   }
+
+               }
+
+               linechart_fever(x_categories,labconfirmedcases);
+           },
+           error: function(response){
+
+           }
+       });
+
+
+
+       $.getJSON("../api/organisationUnits?filter=level:eq:5&fields=id,name,coordinates&paging=false", function (response) {
+
+           addOrgUnits(getCoordinatesFromOus(response.organisationUnits),style);
+
+       });
+
+       function addOrgUnits(blockCoords,style){
+           var mp = {
+               "type": "Feature",
+               "geometry": {
+                   "type": "MultiPolygon",
+                   "coordinates": blockCoords
+               },
+               "properties": {
+                   "name": "MultiPolygon",
+                   key : "block"
+               }
+           };
+           L.geoJson(mp, {
+               style: function() {
+                   return { color: "black",
+                       opacity: 0.75,
+                       fillColor: "blue",
+                       fillOpacity: 0.1,
+                       dashArray: '5, 5',
+                       weight: 3
+
+                   }
+               }
+           }).addTo(map1);
+
+           var markers = new L.FeatureGroup();
+
+
+           map1.removeLayer(markers);
+           markers.clearLayers();
+//           http://139.162.61.147/nieodk/api/analytics/events/query/X2XfE0rYiwk.json?stage=apqU6esBuwV&dimension=pe:LAST_12_MONTHS&dimension=ou:WXW1rhM9hgR&dimension=ALvy8yTD1Np&dimension=gPGTS8eGa4i&dimension=oqTYHlWrWBh&dimension=oDg3FLcVw0R&dimension=J6uckqQfkyc&displayProperty=NAME
+
+           function getCustomIcon(path){
+               return   new L.Icon({
+                   //  iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+                   iconUrl:path,
+                   //  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+                   iconSize: [20, 20],
+                   iconAnchor: [6, 1],
+                   popupAnchor: [1, -34],
+               });
+
+           }
+           $.getJSON("../api/trackedEntityInstances.json?ou=WXW1rhM9hgR&ouMode=DESCENDANTS&paging=false&program=wXXVzDXRLMe&programStartDate="+previousdy11+"&programEndDate="+today+"", function (data) {
+
+console.log("/api/trackedEntityInstances.json?ou=WXW1rhM9hgR&ouMode=DESCENDANTS&paging=false&program=wXXVzDXRLMe&programStartDate="+today+"&programEndDate="+previousdy11+"");
+               for(var i=0;i<data.trackedEntityInstances.length;i++) {
+
+                   for(var j=0;j<data.trackedEntityInstances[i].attributes.length;j++)
+                   {
+                       if(data.trackedEntityInstances[i].attributes[j].attribute=="oqTYHlWrWBh" && data.trackedEntityInstances[i].attributes[j].valueType=="TRUE_ONLY" )
+                       {
+
+                          for(var k=0;k<data.trackedEntityInstances[i].attributes.length;k++)
+                          {
+                              if(data.trackedEntityInstances[i].attributes[k].attribute=="ALvy8yTD1Np")
+                              {
+                                  var coordinate = jQuery.parseJSON(data.trackedEntityInstances[i].attributes[k].value );
+                                //  var marker = L.marker([coordinate.latitude,coordinate.longitude], {radius:5,fillColor: "#FF0000",color:"#FF0000"}).addTo(map1).bindPopup("</br><strong>Organisation unit:</strong>");
+
+                                  var marker = L.marker([coordinate.latitude,coordinate.longitude],{
+                                      icon : getCustomIcon(afi_3)}).addTo(map1).bindPopup("</br><strong>Organisation unit:</strong>");
+                                  markers.addLayer(marker);
+                              }
+
+
+                          }
+
+
+                       }
+                       else if(data.trackedEntityInstances[i].attributes[j].attribute=="oDg3FLcVw0R" && data.trackedEntityInstances[i].attributes[j].valueType=="TRUE_ONLY")
+                       {
+
+                           for(var k=0;k<data.trackedEntityInstances[i].attributes.length;k++)
+                           {
+                               if(data.trackedEntityInstances[i].attributes[k].attribute=="ALvy8yTD1Np")
+                               {
+                                   var coordinate = jQuery.parseJSON(data.trackedEntityInstances[i].attributes[k].value );
+                                   var marker = L.marker([coordinate.latitude,coordinate.longitude],{
+                                       icon : getCustomIcon(afi_5)}).addTo(map1).bindPopup("</br><strong>Organisation unit:</strong>");
+                                   markers.addLayer(marker);
+
+                               }
+
+
+                           }
+
+                       }
+                       else  if(data.trackedEntityInstances[i].attributes[j].attribute=="gPGTS8eGa4i" && data.trackedEntityInstances[i].attributes[j].valueType=="TRUE_ONLY")
+                       {
+                           for(var k=0;k<data.trackedEntityInstances[i].attributes.length;k++)
+                           {
+                               if(data.trackedEntityInstances[i].attributes[k].attribute=="ALvy8yTD1Np")
+                               {
+                                   var coordinate = jQuery.parseJSON(data.trackedEntityInstances[i].attributes[k].value );
+                                   var marker = L.marker([coordinate.latitude,coordinate.longitude],{
+                                       icon : getCustomIcon(lab_1)}).addTo(map1).bindPopup("</br><strong>Organisation unit:</strong>");
+                                   markers.addLayer(marker);
+
+                               }
+
+
+                           }
+                       }
+                       map1.addLayer(markers);
+
+
+
+                   }
+
+               }
+
+           });
+
+       }
+
+       function getCoordinatesFromOus(ous){
+
+           var ouCoords = [];
+           for (var key in ous){
+               if (ous[key].coordinates){
+                   var coords = JSON.parse(ous[key].coordinates);
+                   ouCoords.push(coords[0]);
+               }
+           }
+           return ouCoords;
+       }
+
+
+//       var tableapi1 = "http://139.162.61.147/nieodk/api/analytics/events/query/X2XfE0rYiwk.json?stage=apqU6esBuwV&dimension=pe:"+previousdy1+"&dimension=ou:WXW1rhM9hgR&dimension=J6uckqQfkyc&displayProperty=NAME";
+       var tableapi1 = "http://139.162.61.147/nieodk/api/analytics/events/query/X2XfE0rYiwk.json?stage=apqU6esBuwV&dimension=pe:201704&dimension=ou:WXW1rhM9hgR&dimension=J6uckqQfkyc&displayProperty=NAME";
+
+
+
+       $.getJSON("http://139.162.61.147/nieodk/api/analytics/events/query/X2XfE0rYiwk.json?stage=apqU6esBuwV&dimension=pe:"+last7days+"&dimension=ou:WXW1rhM9hgR&dimension=J6uckqQfkyc&displayProperty=NAME", function (odfjson1,id) {
+           var map = [];
+           for (var i=0;i<odfjson1.rows.length;i++){
+               if (!map[odfjson1.rows[i][8]]){
+                   map[odfjson1.rows[i][8]] = [];
+               }
+               map[odfjson1.rows[i][8]].push(odfjson1.rows[i]);
+           }
+
+           for(var j=0;j<Object.keys(map).length;j++){
+               taluk_count_07.orgname.push(Object.keys(map)[j]);
+               taluk_count_07.orgcount.push(Object.values(map)[j].length);
+           }
+           $.getJSON("http://139.162.61.147/nieodk/api/analytics/events/query/X2XfE0rYiwk.json?stage=apqU6esBuwV&dimension=pe:"+last30days+"&dimension=ou:WXW1rhM9hgR&dimension=J6uckqQfkyc&displayProperty=NAME", function (odfjson1,id) {
+               var map = [];
+               for (var i=0;i<odfjson1.rows.length;i++){
+                   if (!map[odfjson1.rows[i][8]]){
+                       map[odfjson1.rows[i][8]] = [];
+                   }
+                   map[odfjson1.rows[i][8]].push(odfjson1.rows[i]);
+               }
+
+               for(var j=0;j<Object.keys(map).length;j++){
+                   taluk_count_30.orgname.push(Object.keys(map)[j]);
+                   taluk_count_30.orgcount.push(Object.values(map)[j].length);
+               }
+               generatetable(taluk_count_07,taluk_count_30);
+           });
+
+       });
+
+
+   }
+
+   function  generatetable(taluk_count_07,taluk_count_30) {
+       var tablerow="";
+       for(var tab=0;tab<taluk_count_07.orgname.length;tab++){
+           tablerow+="<tr><td style='text-align:left;'>" + tab + "</td><td style='text-align:left;'>" + taluk_count_07.orgname[tab] + "</td><td style='text-align:left;'>" +taluk_count_07.orgcount[tab]  + "</td><td style='text-align:left;'>" +taluk_count_30.orgcount[tab]+ "</td></tr>";
+           taluk_chart_data.push(Math.round(taluk_count_07.orgcount[tab]-taluk_count_30.orgcount[tab]));
+           taluk_chart_data_name.push((taluk_count_07.orgname[tab]));
+       }
+       var tableheading="<tr><td style='text-align:left;'> S.No  </td><td style='text-align:left;'>Name of the Block </td><td style='text-align:left;'>No. of Fever Case </td><td style='text-align:left;'>Last 30 Days(Avg cases/Day)</td></tr>";
+
+       var table = "<H1 align='center' style='color:#000000'>Block wise inpatient fever cases </H1>"+ "<table class='table table-hover'>"+tableheading+ tablerow+"</table>";
+       document.getElementById("summary").innerHTML = table;
+
+      generatechart_taluk(taluk_chart_data);
+   }
+   function generatechart_taluk(taluk_chart_data) {
+
+       Highcharts.chart('sumamry_chart', {
+           chart: {
+               type: 'column'
+           },
+           title: {
+               text: 'Difference between Last 7 Days average & Last 30 Days average'
+           },
+           xAxis: {
+               categories: taluk_chart_data_name
+           },
+           credits: {
+               enabled: false
+           },
+           series: [{
+               name:"IP Difference",
+               data: taluk_chart_data
+           }]
+       });
+
+
+//       Highcharts.chart('sumamry_chart', {
+//           chart: {
+//               type: 'column'
+//           },
+//           title: {
+//               text: 'Difference between Last 7 Days average & Last 30 Days average'
+//           },
+//           xAxis: {
+//               categories: taluk_chart_data_name
+//           },
+//           yAxis: {
+//               min: 0,
+//               title: {
+//                   text: ''
+//               }
+//           },
+//           tooltip: {
+//               pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+//               shared: true
+//           },
+//           plotOptions: {
+//               column: {
+//                   stacking: 'percent'
+//               }
+//           },
+//           series: [{
+//               name:"",
+//               data: taluk_chart_data
+//           }]
+//       });
+   }
+    function generatechart_ipfever_male_female(x_categories,ip_fever_male_data,ip_fever_female_data){
+        Highcharts.chart('container', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'IP Fever Cases'
+            },
+            xAxis: {
+                categories: x_categories
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Fever Cases by Gender'
+                }
+            },
+            tooltip: {
+                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+                shared: true
+            },
+            plotOptions: {
+                column: {
+                    stacking: 'percent'
+                }
+            },
+            series: [{
+                name:"Male",
+                data: ip_fever_male_data
+            }, {
+                name:"Female",
+                data: ip_fever_female_data
+            }]
+        });
+    }
+
+    function generatechart_ipfever_age(x_categories,ip_fever_age12,ip_fever_agel,ip_fever_age1to5,ip_fever_ageg6to12){
+        Highcharts.chart('container1', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'IP Fever Cases by Age'
+            },
+            xAxis: {
+                categories: x_categories
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Fever Cases'
+                }
+            },
+            tooltip: {
+                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+                shared: true
+            },
+            plotOptions: {
+                column: {
+                    stacking: 'percent'
+                }
+            },
+            series: [{
+                name:"IP fever case (age > 12 yrs)",
+                data: ip_fever_age12
+            }, {
+                name:"IP fever case (age 6-12 yrs)",
+                data: ip_fever_ageg6to12
+            },{
+                name:"IP fever case (age 1-5 yrs)",
+                data: ip_fever_age1to5
+            }, {
+                name:"IP fever case (age < 1 year)",
+                data: ip_fever_agel
+            }]
+        });
+    }
+
+    function generatechart_ipfever_disease(x_categories,ip_fever_dengue_cases,ip_fever_scrub_cases){
+        Highcharts.chart('container2', {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'IP Fever Cases By Disease'
+            },
+            xAxis: {
+                categories: x_categories
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Fever Cases'
+                }
+            },
+            tooltip: {
+                pointFormat: '<span style="color:{series.color}">{series.name}</span>: <b>{point.y}</b> ({point.percentage:.0f}%)<br/>',
+                shared: true
+            },
+            plotOptions: {
+                column: {
+                    stacking: 'percent'
+                }
+            },
+            series: [{
+                name:"Dengue",
+                data: ip_fever_dengue_cases
+            }, {
+                name:"Scrub",
+                data: ip_fever_scrub_cases
+            }]
+        });
+    }
+
+    function linechart_op(x_categories,opcases){
+
+        var target=0;
+        var oplast30days='http://139.162.61.147/nieodk/api/25/analytics.json?dimension=dx:PpGueEPdrG4&dimension=pe:'+last30days+'&filter=ou:WXW1rhM9hgR&displayProperty=NAME'
+        $.get(oplast30days, function(data_op) {
+            for (var i = 0; i < data_op.rows.length; i++) {
+                target += parseInt(data_op.rows[i][2]);
+
+            }
+//            document.getElementById("demo").innerHTML = "AFI Inpatient admission (n= " + tar + " )";
+            target = target / 30;
+
+        });
+
+
+
+
+        Highcharts.chart('container_op', {
+            title: {
+                text: 'OP Fever Cases'
+            },
+
+            yAxis: {
+                title: {
+                    text: ''
+                }
+//                },
+//                plotLines: [{
+//                    value: target,
+//                    color: 'green',
+//                    dashStyle: 'shortdash',
+//                    width: 2,
+//                    label: {
+//                        text: 'Last 30 Days Target OP'
+//                    }
+//                }]
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+            },
+
+            plotOptions: {
+                series: {
+                    pointStart: x_categories
+                }
+            },
+
+            series: [{
+                name: 'OP Cases',
+                data:opcases
+            }]
+
+        });
+
+
+    }
+
+    function linechart_ip(x_categories,ipcases){
+        var target=0;
+        var oplast30days='http://139.162.61.147/nieodk/api/25/analytics.json?dimension=dx:ync729Eu0uN&dimension=pe:'+last30days+'&filter=ou:WXW1rhM9hgR&displayProperty=NAME'
+        $.get(oplast30days, function(data_op) {
+            for (var i = 0; i < data_op.rows.length; i++) {
+                target += parseInt(data_op.rows[i][2]);
+
+            }
+//            document.getElementById("demo").innerHTML = "AFI Inpatient admission (n= " + tar + " )";
+            target = target / 30;
+
+        });
+
+
+        Highcharts.chart('container_ip', {
+
+            title: {
+                text: 'IP Cases'
+            },
+
+            subtitle: {
+                text: 'IP Cases'
+            },
+
+            yAxis: {
+                title: {
+                    text: 'IP Cases'
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+            },
+            plotOptions: {
+                series: x_categories
+            },
+            series: [{
+                name: 'IP Cases',
+                data: ipcases
+            }]
+
+        });
+
+
+
+
+//        Highcharts.chart('container_ip', {
+//
+//            title: {
+//                text: 'IP Cases'
+//            },
+//            yAxis: {
+//                title: {
+//                    text: ''
+//                }
+////                ,
+////                plotLines: [{
+////                    value: target,
+////                    color: 'green',
+////                    dashStyle: 'shortdash',
+////                    width: 2,
+////                    label: {
+////                        text: 'Last 30 Days Target IP'
+////                    }
+////                }]
+//            },
+//            legend: {
+//                layout: 'vertical',
+//                align: 'right',
+//                verticalAlign: 'middle'
+//            },
+//
+//            plotOptions: {
+//                series: {
+//                    pointStart: x_categories
+//                }
+//            },
+//
+//            series: [{
+//                name: 'IP Cases',
+//                data: ipcases
+//            }]
+//
+//        });
+
+
+    }
+
+    function linechart_fever(x_categories,labconfirmedcases){
+        var target=0;
+        var oplast30days='http://139.162.61.147/nieodk/api/25/analytics.json?dimension=dx:sUvnnR1Vwlg&dimension=pe:'+last30days+'&filter=ou:WXW1rhM9hgR&displayProperty=NAME'
+        $.get(oplast30days, function(data_op) {
+            for (var i = 0; i < data_op.rows.length; i++) {
+                target += parseInt(data_op.rows[i][2]);
+
+            }
+//            document.getElementById("demo").innerHTML = "AFI Inpatient admission (n= " + tar + " )";
+            target = target / 30;
+
+        });
+
+        Highcharts.chart('container_fever', {
+
+            title: {
+                text: 'Lab Confirmed Cases'
+            },
+            yAxis: {
+                title: {
+                    text: ''
+                }
+//                ,
+//                plotLines: [{
+//                    value:'',
+//                    color: 'green',
+//                    dashStyle: 'shortdash',
+//                    width: 2,
+//                    label: {
+//                        text: 'Last 30 Days Target'
+//                    }
+//                }]
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+            },
+
+            plotOptions: {
+                series: {
+                    pointStart: x_categories
+                }
+            },
+
+            series: [{
+                name: 'Lab Confirmed Cases',
+                data: labconfirmedcases
+            }]
+
+        });
+    }
+
+
+    </script>
+<div id="Header">
+    <div class="input-group date" id='date' style="margin: 8px">
+            <input type='date' id="datepicker1" />
+   </span>
+        </div>
+    <input type="button" onClick="loadDataX()" value="Go" style="width:50px; margin: 8px"  class = "btn btn-success"/>
+</div>
+
+<table style="width:100%;" class="table2">
+    <tr>
+        <td style="width:80% ">
+            <div id="overContainer">
+
+                <div id="map1" style="width:1200px; height:500px"></div>
+            </div>
+        </td>
+        <td style="width: 20%">
+<img src="http://139.162.61.147/nieodk/api/documents/ibQYvXdXcbu/data" id="legend" style="width:304px;height:228px;">
+        </td>
+    </tr>
+</table>
+<table style="width: 100%">
+<tr>
+    <td style="width: 50%">
+        <div id="summary" style=" height:500px"></div>
+    </td>
+    <td style="width: 50%">
+        <div id="sumamry_chart" style=" height:500px"></div>
+    </td>
+</tr>
+</table>
+
+<!--<div style="width: 100%">-->
+    <!--<div id="container_1" style="min-width: 310px; height: 400px;  width: 50%; margin-left: 50%"></div>-->
+<!--</div>-->
+
+<!--<table style="width:100%;">-->
+    <!--<tr>-->
+
+        <!--<td style="width:50%;"><h1 style="text-align: center"></h1>-->
+            <!--<div id="chart3" style="width: 1200px;  height: 400px; margin: 0 auto; "></div>-->
+        <!--</td>-->
+    <!--</tr>-->
+<!--</table>-->
+
+<table style="width:100%;" class="table3">
+    <tr>
+
+        <td style="width:50%;"><H1></H1>
+            <div id="container_op" style="width: 500px;  height: 400px; margin: 0 auto; "></div>
+        </td>
+        <td style="width:50%;"><H1></H1>
+            <div id="container" style="width: 500px;  height: 400px; margin: 0 auto; "></div>
+        </td>
+    </tr>
+</table>
+
+<table style="width:100%;" class="table3">
+    <tr>
+
+        <td style="width:50%;"><H1></H1>
+            <div id="container_ip" style="width: 500px;  height: 400px; margin: 0 auto; "></div>
+        </td>
+        <td style="width:50%;"><H1></H1>
+            <div id="container1" style="width: 500px;  height: 400px; margin: 0 auto; "></div>
+        </td>
+    </tr>
+</table>
+
+<table style="width:100%;" class="table3">
+    <tr>
+
+        <td style="width:50%;"><H1></H1>
+            <div id="container_fever" style="width: 500px;  height: 400px; margin: 0 auto; "></div>
+        </td>
+        <td style="width:50%;"><H1></H1>
+            <div id="container2" style="width: 500px;  height: 400px; margin: 0 auto; "></div>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>
